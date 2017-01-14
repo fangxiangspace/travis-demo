@@ -1,0 +1,50 @@
+
+apply plugin: 'application'
+apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'org.akhikhl.gretty'
+
+jar{
+	manifest {
+		attributes 'Main-Class':'com.trs.gradle.HelloWorld'
+	}
+}
+
+task createDocs {
+    def docs = file("$buildDir/docs")
+    outputs.dir docs
+    doLast {
+        docs.mkdirs()
+        new File(docs, "readme.txt").write("Read me!")
+    }
+}
+
+applicationDistribution.from(createDocs) {
+    into "docs"
+}
+
+repositories{
+	mavenCentral()
+}
+
+dependencies{
+	compile 'log4j:log4j:1.2.17'
+	testCompile 'junit:junit:4.11'
+}
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'org.akhikhl.gretty:gretty:+'
+    }
+}
+
+gretty {
+    port = 8080
+    contextPath = '/'
+    servletContainer = 'jetty9'
+}
+
+mainClassName = 'com.trs.gradle.HelloWorld'
